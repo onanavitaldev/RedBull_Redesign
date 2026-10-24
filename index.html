@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Bull - Gives You Wings</title>
+
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            redbull: {
+              red: '#DB0A40',
+              blue: '#08132B',
+              darkBg: '#0B0E14',
+              grayBg: '#F4F5F7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Anton', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,800;0,900;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Vue.js 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <style>
+    /* Masquer la barre de défilement pour un rendu épuré sur les cartes swipeables */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="bg-redbull-darkBg text-white selection:bg-redbull-red selection:text-white overflow-x-hidden">
+
+  <div id="app">
+
+    <!-- FIXED & FLUID NAVBAR (iOS Floating Pill Style on Scroll) -->
+    <header :class="[
+        'fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-out flex justify-center',
+        isScrolled ? 'pt-4 px-4' : 'pt-0 px-0'
+      ]">
+      <div :class="[
+          'transition-all duration-500 ease-out flex items-center justify-between px-6 md:px-10',
+          isScrolled 
+            ? 'w-full max-w-5xl bg-black/60 backdrop-blur-xl border border-white/20 rounded-full py-2.5 shadow-2xl shadow-black/60' 
+            : 'w-full bg-gradient-to-b from-black/90 via-black/50 to-transparent py-5'
+        ]">
+        <a href="#" class="flex items-center gap-2 group">
+          <img src="assets/img/logo.svg" alt="logo"
+            class="h-4 md:h-5 w-auto transition-transform duration-300 group-hover:scale-105">
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-300">
+          <a href="#" class="hover:text-redbull-red transition-colors">Welcome</a>
+          <a href="#energy-drinks-section" class="hover:text-redbull-red transition-colors">Energy Drinks</a>
+          <a href="#stories" class="hover:text-redbull-red transition-colors">Stories</a>
+          <a href="#events" class="hover:text-redbull-red transition-colors">Events</a>
+          <a href="#athletes" class="hover:text-redbull-red transition-colors">Athletes</a>
+          <a href="#tv" class="hover:text-redbull-red transition-colors">Red Bull TV</a>
+        </nav>
+
+        <button @click="playCanSound"
+          class="bg-redbull-red hover:bg-red-700 text-white font-bold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider transition-all transform hover:scale-105 active:scale-95 shadow-lg">
+          Get Wings
+        </button>
+      </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section
+      class="relative w-full h-screen min-h-[650px] overflow-hidden bg-black flex items-end pb-16 px-6 sm:px-12 md:px-20">
+      <transition-group name="fade">
+        <div v-for="(slide, index) in slides" :key="slide.id" v-show="currentSlide === index"
+          class="absolute inset-0 w-full h-full">
+          <template v-if="slide.type === 'video'">
+            <video autoplay loop muted playsinline class="w-full h-full object-cover">
+              <source :src="slide.mediaUrl" type="video/mp4">
+            </video>
+          </template>
+          <template v-else>
+            <img :src="slide.mediaUrl" :alt="slide.title" class="w-full h-full object-cover object-center" />
+          </template>
+
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
+        </div>
+      </transition-group>
+
+      <div class="relative z-10 max-w-3xl space-y-5">
+        <h1
+          class="font-heading font-black text-3xl sm:text-5xl md:text-6xl text-white tracking-tight leading-tight uppercase">
+          {{ slides[currentSlide].title }}
+        </h1>
+
+        <p class="text-sm sm:text-base text-gray-300 font-normal leading-relaxed max-w-2xl">
+          {{ slides[currentSlide].description }}
+        </p>
+
+        <div class="pt-2 flex flex-wrap items-center gap-3">
+          <button @click="playCanSound"
+            class="bg-redbull-red hover:bg-red-700 text-white font-bold text-xs uppercase px-6 py-3 rounded-full transition-all transform hover:scale-105 shadow-md">
+            Read Story
+          </button>
+
+          <div v-for="(tag, tIdx) in slides[currentSlide].tags" :key="tIdx"
+            class="bg-white/10 backdrop-blur-md text-gray-200 text-xs font-medium px-3.5 py-2.5 rounded-full flex items-center gap-2">
+            <span>{{ tag.text }}</span>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center gap-2">
+          <button v-for="(slide, idx) in slides" :key="idx" @click="currentSlide = idx" :class="[
+              'h-1.5 rounded-full transition-all duration-300',
+              currentSlide === idx ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+            ]" :aria-label="'Go to slide ' + (idx + 1)"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENERGY DRINKS SHOWCASE (PINNED SINGLE SECTION WITH GSAP CONTENT SWITCHING) -->
+    <section id="energy-drinks-section"
+      class="relative w-full h-screen overflow-hidden flex items-center justify-center">
+
+      <!-- Dynamic Background Layers -->
+      <div v-for="(drink, index) in drinks" :key="'bg-'+drink.id"
+        class="drink-bg-layer absolute inset-0 transition-colors duration-500"
+        :style="{ background: drink.bgGradient }">
+        <!-- Background Watermark -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none select-none">
+          <span class="font-heading font-black text-[22vw] uppercase leading-none tracking-tighter"
+            :style="{ color: drink.textColor }">
+            {{ drink.watermark }}
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="max-w-7xl mx-auto px-6 sm:px-10 w-full h-full flex flex-col md:flex-row items-center justify-between relative z-10 pt-16">
+
+        <!-- LEFT SIDE: Model Name in Big Headlines -->
+        <div class="w-full md:w-1/3 relative h-48 flex items-center">
+          <div v-for="(drink, index) in drinks" :key="'left-'+drink.id"
+            class="drink-info-left-item absolute inset-0 flex flex-col justify-center space-y-3 text-center md:text-left"
+            :style="{ color: drink.textColor }">
+            <span
+              class="inline-block text-[11px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full border backdrop-blur-md w-max mx-auto md:mx-0"
+              :style="{ borderColor: drink.accentColor, color: drink.accentColor }">
+              {{ drink.subtitle }}
+            </span>
+
+            <h2 class="font-heading font-black text-5xl sm:text-6xl md:text-7xl uppercase leading-none tracking-tight">
+              {{ drink.name }}
+            </h2>
+
+            <div class="text-xs font-bold uppercase tracking-widest opacity-70">
+              <span>{{ drink.volume }}</span> • <span>{{ drink.calories }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CENTER SIDE: Interactive 3D Can -->
+        <div
+          class="w-full md:w-1/3 flex flex-col items-center justify-center relative my-6 md:my-0 h-[360px] md:h-[480px]"
+          style="perspective: 1200px;">
+          <div class="relative w-48 sm:w-56 h-[340px] sm:h-[420px] flex items-center justify-center"
+            style="transform-style: preserve-3d;">
+            <img v-for="(drink, index) in drinks" :key="'can-'+drink.id" :src="drink.image" :alt="drink.name"
+              class="drink-can-item absolute w-full h-full object-contain pointer-events-none origin-center drop-shadow-2xl"
+              style="border-bottom-left-radius:30px;border-bottom-right-radius:30px;" />
+          </div>
+
+          <!-- Dynamic Shadow -->
+          <div class="drink-shadow w-44 h-4 bg-black/40 rounded-full filter blur-md mt-2"></div>
+        </div>
+
+        <!-- RIGHT SIDE: Description (Single Paragraph >= 3 sentences) & Action Button -->
+        <div class="w-full md:w-1/3 relative h-56 flex items-center">
+          <div v-for="(drink, index) in drinks" :key="'right-'+drink.id"
+            class="drink-info-right-item absolute inset-0 flex flex-col justify-center items-center md:items-start text-center md:text-left space-y-6"
+            :style="{ color: drink.textColor }">
+            <p class="text-xs sm:text-sm font-medium leading-relaxed opacity-90 max-w-md line-clamp-3">
+              {{ drink.description }}
+            </p>
+
+            <button @click="playCanSound"
+              class="text-xs font-bold uppercase tracking-widest px-8 py-3.5 rounded-full transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl"
+              :style="{ backgroundColor: drink.btnBg, color: drink.btnText }">
+              Explore Edition
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STORIES SECTION (MINIMALIST & HIGH IMPACT) -->
+    <section id="stories"
+      class="relative w-full py-28 px-6 sm:px-12 md:px-20 bg-redbull-darkBg text-white border-t border-white/10">
+      <div class="max-w-7xl mx-auto space-y-12">
+
+        <!-- Section Header -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+          <div class="space-y-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-redbull-red">Latest News & Culture</span>
+            <h2 class="font-heading font-black text-4xl sm:text-5xl italic uppercase tracking-tight">
+              Trending Stories
+            </h2>
+          </div>
+          <a href="#"
+            class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-redbull-red transition-colors flex items-center gap-2 group">
+            <span>View All Stories</span>
+            <span class="transform group-hover:translate-x-1 transition-transform">→</span>
+          </a>
+        </div>
+
+        <!-- Stories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <article v-for="story in stories" :key="story.id"
+            class="story-card group cursor-pointer bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-all duration-500 flex flex-col justify-between">
+            <!-- Image & Category Tag -->
+            <div class="relative h-56 overflow-hidden">
+              <img :src="story.image" :alt="story.title"
+                class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+              <span
+                class="absolute top-4 left-4 bg-[#EAA320] backdrop-blur-md text-black text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                {{ story.category }}
+              </span>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+              <div class="space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ story.readTime }} • {{
+                  story.date }}</span>
+                <h3
+                  class="font-heading font-bold text-lg italic uppercase leading-snug group-hover:text-redbull-red transition-colors line-clamp-2">
+                  {{ story.title }}
+                </h3>
+              </div>
+
+              <div
+                class="pt-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-300 group-hover:text-white transition-colors">
+                <span>Read Story</span>
+                <span class="transform group-hover:translate-x-1 transition-transform text-redbull-red">→</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EVENTS SECTION (LIGHT MODE, SLIM CARDS, CAROUSEL) -->
+    <section id="events"
+      class="relative w-full py-28 px-6 sm:px-12 md:px-20 bg-[#F4F5F7] text-slate-900 overflow-hidden">
+      <div class="max-w-7xl mx-auto space-y-12">
+
+        <!-- Section Header -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-300 pb-6">
+          <div class="space-y-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-redbull-red">Live Experience</span>
+            <h2 class="font-heading font-black text-4xl sm:text-5xl italic uppercase tracking-tight text-slate-900">
+              Upcoming Events
+            </h2>
+          </div>
+          <p class="text-xs text-slate-500 font-medium max-w-xs">
+            Scroll horizontally through our curated lineup of global concerts, esports showdowns, and cultural
+            festivals.
+          </p>
+        </div>
+
+        <!-- Carousel Container -->
+        <div
+          class="events-scroll-container flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 scrollbar-none -mx-6 px-6 sm:mx-0 sm:px-0">
+
+          <div v-for="event in events" :key="event.id"
+            class="event-card min-w-[260px] max-w-[260px] snap-center bg-white rounded-2xl overflow-hidden shadow-lg shadow-slate-200/50 border border-slate-200/80 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-2">
+            <!-- Event Image & Badge -->
+            <div class="relative h-48 overflow-hidden">
+              <img :src="event.image" :alt="event.title" class="w-full h-full object-cover object-center" />
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+
+              <span
+                class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
+                {{ event.category }}
+              </span>
+
+              <div class="absolute bottom-3 left-3 right-3 text-white">
+                <span
+                  class="text-[10px] font-bold uppercase tracking-wider text-redbull-red bg-white px-2 py-0.5 rounded-full">{{
+                  event.date }}</span>
+              </div>
+            </div>
+
+            <!-- Event Content -->
+            <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+              <div class="space-y-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">{{ event.location
+                  }}</span>
+                <h3 class="font-heading font-black text-base uppercase italic text-slate-900 leading-snug">
+                  {{ event.title }}
+                </h3>
+                <p class="text-[11px] text-slate-600 font-normal leading-relaxed line-clamp-3">
+                  {{ event.description }}
+                </p>
+              </div>
+
+              <button @click="playCanSound"
+                class="w-full bg-[#EAA320] hover:bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest py-3 rounded-full transition-colors shadow-sm">
+                Get Tickets
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ATHLETES SECTION (IMMERSIVE STREAMING STYLE) -->
+    <section id="athletes"
+      class="relative w-full h-screen min-h-[650px] overflow-hidden bg-black flex items-center px-6 sm:px-12 md:px-20">
+
+      <!-- Background slider with fade transition -->
+      <transition-group name="fade">
+        <div v-for="(athlete, index) in athletes" :key="athlete.id" v-show="currentAthlete === index"
+          class="absolute inset-0 w-full h-full">
+          <img :src="athlete.image" :alt="athlete.name"
+            class="w-full h-full object-cover object-center filter brightness-90 scale-105 transition-transform duration-1000" />
+          <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50"></div>
+        </div>
+      </transition-group>
+
+      <!-- Content Layer -->
+      <div class="relative z-10 max-w-4xl space-y-6 pt-16">
+        <div class="space-y-2">
+          <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-redbull-red">
+            {{ athletes[currentAthlete].sport }} • {{ athletes[currentAthlete].country }}
+          </p>
+          <h2
+            class="font-heading font-black text-4xl sm:text-6xl md:text-7xl uppercase italic tracking-tight text-white leading-none">
+            {{ athletes[currentAthlete].name }}
+          </h2>
+        </div>
+
+        <p class="text-xs sm:text-sm md:text-base text-gray-300 font-normal leading-relaxed max-w-xl">
+          {{ athletes[currentAthlete].bio }}
+        </p>
+
+        <div class="pt-4 flex items-center gap-4">
+          <button @click="playCanSound"
+            class="bg-redbull-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-full transition-all transform hover:scale-105 active:scale-95 shadow-xl">
+            Watch Profile
+          </button>
+        </div>
+
+        <!-- Carousel Indicators (3 Athletes) -->
+        <div class="pt-8 flex items-center gap-3">
+          <button v-for="(athlete, idx) in athletes" :key="idx" @click="currentAthlete = idx" :class="[
+          'h-2 rounded-full transition-all duration-300',
+          currentAthlete === idx ? 'w-12 bg-white' : 'w-3 bg-white/40 hover:bg-white/70'
+        ]" :aria-label="'Go to athlete ' + (idx + 1)"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RED BULL TV SECTION (PRIME VIDEO STYLE) -->
+    <section id="tv" class="relative w-full py-24 px-6 sm:px-12 md:px-20 bg-black text-white border-t border-white/10">
+      <div class="max-w-7xl mx-auto space-y-12">
+
+        <!-- Section Header -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+          <div class="space-y-2">
+            <span class="text-xs font-bold uppercase tracking-widest text-redbull-red">Streaming Platform</span>
+            <h2
+              class="font-heading font-black text-4xl sm:text-5xl uppercase tracking-tight text-white flex items-center gap-3">
+              Red Bull <span
+                class="bg-redbull-red px-3 py-1 rounded-md not-italic text-2xl font-black tracking-normal">TV</span>
+            </h2>
+          </div>
+          <a href="#"
+            class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors flex items-center gap-2 group">
+            <span>Browse Full Catalog</span>
+            <span class="transform group-hover:translate-x-1 transition-transform text-redbull-red">→</span>
+          </a>
+        </div>
+
+        <!-- PRIME STYLE HERO SPOTLIGHT BANNER -->
+        <div
+          class="relative w-full h-[420px] sm:h-[480px] rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex items-end p-8 sm:p-12 group">
+          <!-- Background Image / Overlay -->
+          <img :src="shows[0].image" :alt="shows[0].title"
+            class="absolute inset-0 w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-1000 opacity-70" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent"></div>
+
+          <!-- Content Details -->
+          <div class="relative z-10 max-w-2xl space-y-4">
+            <div class="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-widest">
+              <span class="bg-redbull-red text-white px-2.5 py-1 rounded-full">Prime Exclusive</span>
+              <span class="bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-full text-gray-200">4K Ultra HD</span>
+              <span class="text-gray-400">{{ shows[0].duration }}</span>
+            </div>
+
+            <h3 class="font-heading font-black text-3xl sm:text-5xl uppercase leading-tight text-white">
+              {{ shows[0].title }}
+            </h3>
+
+            <p class="text-xs sm:text-sm text-gray-300 font-normal leading-relaxed line-clamp-2">
+              {{ shows[0].description }}
+            </p>
+
+            <!-- Actions -->
+            <div class="pt-2 flex flex-wrap items-center gap-4">
+              <button @click="playCanSound"
+                class="bg-white hover:bg-gray-200 text-black font-bold text-xs uppercase tracking-wider px-8 py-3.5 rounded-full transition-all flex items-center gap-2 transform hover:scale-105 shadow-xl">
+                <span>▶ Watch Now</span>
+              </button>
+
+              <button @click="playCanSound"
+                class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-full transition-all flex items-center gap-2">
+                <span>+ Add to Watchlist</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAROUSEL ROW: RECOMMENDED SHOWS -->
+        <div class="space-y-4 pt-4">
+          <h4 class="font-heading font-bold text-lg uppercase tracking-wider text-gray-200 flex items-center gap-2">
+            <span>Trending Originals</span>
+          </h4>
+
+          <!-- Horizontal Scroll Track (Prime Video Style) -->
+          <div class="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 scrollbar-none -mx-6 px-6 sm:mx-0 sm:px-0">
+            <div v-for="show in shows" :key="show.id"
+              class="min-w-[240px] max-w-[240px] sm:min-w-[280px] sm:max-w-[280px] snap-start group relative rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-none transition-all duration-300 hover:scale-105 hover:z-20 hover:border-redbull-red shadow-lg cursor-pointer">
+              <!-- Thumbnail Image -->
+              <div class="relative h-40 sm:h-44 overflow-hidden">
+                <img :src="show.image" :alt="show.title"
+                  class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80">
+                </div>
+
+                <span
+                  class="absolute bottom-3 left-3 text-[9px] font-bold uppercase tracking-widest text-redbull-red bg-[#EAA320] px-2 py-0.5 rounded-full">
+                  {{ show.genre }}
+                </span>
+              </div>
+
+              <!-- Card Info -->
+              <div class="p-4 space-y-2">
+                <h5
+                  class="font-heading font-bold text-sm italic uppercase text-white leading-snug group-hover:text-redbull-red transition-colors line-clamp-1">
+                  {{ show.title }}
+                </h5>
+                <p class="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
+                  {{ show.description }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- CREATIVE RED BULL GRADIENT FOOTER -->
+  <footer class="relative w-full text-white pt-20 pb-10 overflow-hidden border-t border-white/10">
+
+    <!-- Dynamic Red Bull Brand Gradient Background -->
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-[#050B18] via-[#08132B] via-60% to-[#DB0A40]/40 pointer-events-none">
+    </div>
+
+    <!-- Ambient Red Bull Yellow Glow Accent -->
+    <div
+      class="absolute -bottom-24 -left-24 w-96 h-96 bg-[#EAA320]/20 rounded-full filter blur-3xl pointer-events-none">
+    </div>
+    <div class="absolute top-0 right-10 w-80 h-80 bg-[#DB0A40]/20 rounded-full filter blur-3xl pointer-events-none">
+    </div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 md:px-20 space-y-16">
+
+      <!-- Top Section: Big Tagline & Newsletter Box -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center border-b border-white/10 pb-16">
+
+        <!-- Big Tagline -->
+        <div class="lg:col-span-7 space-y-4">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#EAA320]">Never Miss a Beat</span>
+          <h2 class="font-heading font-black text-5xl sm:text-6xl md:text-7xl uppercase tracking-tight leading-none text-white">
+            GIVES YOU <span class="text-redbull-red">WINGS.</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-300 font-normal leading-relaxed max-w-lg">
+            Subscribe to get exclusive access to underground event drops, athlete profiles, and Red Bull TV premieres.
+          </p>
+        </div>
+
+        <!-- Glassmorphic Input Box -->
+        <div class="lg:col-span-5 w-full">
+          <form @submit.prevent="playCanSound"
+            class="relative flex items-center bg-white/5 border border-white/15 p-2 rounded-full backdrop-blur-md shadow-2xl focus-within:border-redbull-red transition-all">
+            <input type="email" placeholder="ENTER YOUR EMAIL"
+              class="w-full bg-transparent px-5 py-3 text-xs font-bold text-white placeholder-gray-400 focus:outline-none uppercase tracking-wider"
+              required />
+            <button type="submit"
+              class="bg-redbull-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-widest px-8 py-3.5 rounded-full transition-all transform hover:scale-105 active:scale-95 shrink-0 shadow-lg">
+              Join
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Middle Section: Navigation Links & Socials -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
+
+        <!-- Column 1: Logo & Info -->
+        <div class="col-span-2 space-y-4">
+          <a href="#" class="inline-block group">
+            <img src="assets/img/logo.svg" alt="Red Bull Logo"
+              class="h-10 w-auto transform group-hover:scale-105 transition-transform">
+          </a>
+          <p class="text-[11px] font-normal text-gray-400 max-w-xs">
+            Red Bull Energy Drink is appreciated worldwide by top athletes, busy professionals, university students, and
+            travelers on long journeys.
+          </p>
+        </div>
+
+        <!-- Column 2: Quick Links -->
+        <div class="space-y-3">
+          <span
+            class="text-white text-xs font-black tracking-widest">Products</span>
+          <ul class="space-y-2 font-medium text-gray-400 text-xs">
+            <li><a href="#energy-drinks-section" class="hover:text-white transition-colors">Red Bull Energy Drink</a>
+            </li>
+            <li><a href="#energy-drinks-section" class="hover:text-white transition-colors">The Sugarfree Edition</a>
+            </li>
+            <li><a href="#energy-drinks-section" class="hover:text-white transition-colors">The Coconut Edition</a></li>
+            <li><a href="#energy-drinks-section" class="hover:text-white transition-colors">The Apple Edition</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: Universe -->
+        <div class="space-y-3">
+          <span
+            class="text-white text-xs font-black tracking-widest">Universe</span>
+          <ul class="space-y-2 font-medium text-gray-400 text-xs">
+            <li><a href="#stories" class="hover:text-white transition-colors">Latest Stories</a></li>
+            <li><a href="#events" class="hover:text-white transition-colors">Global Events</a></li>
+            <li><a href="#athletes" class="hover:text-white transition-colors">Red Bull Athletes</a></li>
+            <li><a href="#tv" class="hover:text-white transition-colors">Red Bull TV</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: Socials -->
+        <div class="space-y-3">
+          <span class="text-white text-xs font-black tracking-widest">Follow
+            Us</span>
+          <ul class="space-y-2 font-medium text-gray-400 text-xs">
+            <li><a href="#" class="hover:text-white transition-colors">Instagram</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">YouTube</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">TikTok</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">X (Twitter)</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Section: Copyright & Legal -->
+      <div
+        class="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-400 font-medium">
+        <p>© 2026 Red Bull. All rights reserved. </p>
+
+        <div class="flex flex-wrap items-center gap-6">
+          <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+          <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+          <a href="#" class="hover:text-white transition-colors">Brand Protection</a>
+          <p class="uppercase">By <a href="https://onanavitaldev.github.io/w/" target="_blank" class="text-[#EAA320]">ONANA Vital</a></p>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Vue.js & GSAP Logic -->
+  <script src="js/app.js"></script>
+</body>
+
+</html>
